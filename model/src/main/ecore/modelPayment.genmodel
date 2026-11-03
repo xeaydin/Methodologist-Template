@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/tools.vitruv.methodologisttemplate.model/src"
+    modelPluginID="tools.vitruv.methodologisttemplate.model" modelName="ModelPayment"
+    rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="21.0" copyrightFields="false" operationReflection="true" importOrganizing="true">
+  <foreignModel>modelPayment.ecore</foreignModel>
+  <genPackages prefix="ModelPayment" disposableProviderFactory="true" ecorePackage="modelPayment.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="modelPayment.ecore#//PaymentStatus">
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//PaymentStatus/PENDING"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//PaymentStatus/AUTHORIZED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//PaymentStatus/CAPTURED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//PaymentStatus/FAILED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//PaymentStatus/CANCELLED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//PaymentStatus/REFUNDED"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="modelPayment.ecore#//TransactionType">
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//TransactionType/AUTHORIZE"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//TransactionType/CAPTURE"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//TransactionType/REFUND"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//TransactionType/VOID"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="modelPayment.ecore#//RefundStatus">
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//RefundStatus/REQUESTED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//RefundStatus/APPROVED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//RefundStatus/REJECTED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//RefundStatus/COMPLETED"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="modelPayment.ecore#//OrderStatus">
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//OrderStatus/CREATED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//OrderStatus/PAID"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//OrderStatus/SHIPPED"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//OrderStatus/CANCELLED"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="modelPayment.ecore#//CardBrand">
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//CardBrand/VISA"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//CardBrand/MASTERCARD"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//CardBrand/AMEX"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="modelPayment.ecore#//Currency">
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//Currency/EUR"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//Currency/USD"/>
+      <genEnumLiterals ecoreEnumLiteral="modelPayment.ecore#//Currency/TRY"/>
+    </genEnums>
+    <genClasses ecoreClass="modelPayment.ecore#//PaymentDomain">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//PaymentDomain/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//PaymentDomain/orders"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//PaymentDomain/customers"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//PaymentDomain/providers"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//Order">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Order/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Order/createdAt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Order/totalAmount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Order/currency"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Order/status"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Order/customer"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Order/payments"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Order/invoice"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//Customer">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Customer/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Customer/fullName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Customer/email"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Customer/orders"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Customer/paymentMethods"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//Payment">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Payment/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Payment/amount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Payment/createdAt"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Payment/currency"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Payment/status"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Payment/refunds"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Payment/provider"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Payment/transactions"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Payment/method"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//Invoice">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Invoice/invoiceNumber"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Invoice/netAmount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Invoice/taxAmount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Invoice/issuedAt"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//PaymentProvider">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//PaymentProvider/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//PaymentProvider/apiEndpoint"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//Refund">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Refund/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Refund/amount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Refund/reason"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Refund/status"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Refund/requestedAt"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference modelPayment.ecore#//Refund/transaction"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="modelPayment.ecore#//PaymentMethod">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//PaymentMethod/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//PaymentMethod/token"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//PaymentMethod/isDefault"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//CreditCard">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//CreditCard/holderName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//CreditCard/last4"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//CreditCard/brand"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//CreditCard/expiryMonth"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//CreditCard/expiryYear"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//PayPalAccount">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//PayPalAccount/payerEmail"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//BankAccount">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//BankAccount/accountHolder"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//BankAccount/iban"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//BankAccount/bic"/>
+    </genClasses>
+    <genClasses ecoreClass="modelPayment.ecore#//Transaction">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Transaction/id"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Transaction/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Transaction/amount"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Transaction/gatewayReference"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Transaction/isSuccess"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Transaction/errorCode"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute modelPayment.ecore#//Transaction/timestamp"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>
