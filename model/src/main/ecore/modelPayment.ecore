@@ -12,7 +12,11 @@
         upperBound="-1" eType="#//PaymentProvider" containment="true"/>
     </eClassifiers>
 
-    <eClassifiers xsi:type="ecore:EClass" name="Order">
+    <eClassifiers xsi:type="ecore:EClass" name="Entity">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eClassifiers>
+
+    <eClassifiers xsi:type="ecore:EClass" name="Order" eSuperTypes="#//Entity">
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" iD="true"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="createdAt" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalAmount" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBigDecimal"/>
@@ -26,7 +30,7 @@
          eType="#//Invoice" containment="true"/>
     </eClassifiers>
 
-    <eClassifiers xsi:type="ecore:EClass" name="Customer">
+    <eClassifiers xsi:type="ecore:EClass" name="Customer" eSuperTypes="#//Entity">
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" iD="true"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="fullName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="email" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
@@ -36,7 +40,7 @@
          upperBound="-1" eType="#//PaymentMethod" containment="true"/>
     </eClassifiers>
 
-    <eClassifiers xsi:type="ecore:EClass" name="Payment">
+    <eClassifiers xsi:type="ecore:EClass" name="Payment" eSuperTypes="#//Entity">
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString" iD="true"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="amount" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBigDecimal"/>
       <eStructuralFeatures xsi:type="ecore:EAttribute" name="createdAt" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EDate"/>
