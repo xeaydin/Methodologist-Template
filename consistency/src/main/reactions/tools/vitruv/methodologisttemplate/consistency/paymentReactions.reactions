@@ -1,0 +1,244 @@
+import java.io.File
+import org.eclipse.emf.ecore.EObject
+import tools.vitruv.methodologisttemplate.model.model2.Model2Factory
+import tools.vitruv.methodologisttemplate.model.model2.Root
+
+import "http://vitruv.tools/methodologisttemplate/modelPayment" as modelPayment
+import "http://vitruv.tools/methodologisttemplate/model2" as model2
+
+// modelPayment::Entity (super class of Order, Payment and Customer) is the concept shared with model2::Entity:
+//   PaymentDomain   -> Root (persisted as payment.model2)
+//   Entity (Order, Payment, Customer) -> model2 Entity, name = Entity.name
+//   PaymentProvider -> model2 Entity (name = name)
+//   Order.customer  -> Link [order entity, customer entity], correspondence tagged "customer"
+//   Payment.provider -> Link [payment entity, provider entity] whose CommunicationStandard
+//                      is named after the payment method type (CreditCard, PayPalAccount, BankAccount),
+//                      correspondence tagged "provider"
+reactions: modelPayment2Model2
+in reaction to changes in modelPayment
+execute actions in model2
+
+
+// ===================== PaymentDomain -> Root =====================
+
+reaction PaymentDomainInsertedAsRoot {
+	after element modelPayment::PaymentDomain inserted as root
+	call createAndRegisterPaymentRoot(newValue)
+}
+
+routine createAndRegisterPaymentRoot(modelPayment::PaymentDomain domain) {
+	match {
+		require absence of model2::Root corresponding to domain
+	}
+	create {
+		val mRoot = new model2::Root
+	}
+	update {
+		persistProjectRelative(domain, mRoot, new File("").toString() + "payment.model2")
+		addCorrespondenceBetween(domain, mRoot)
+	}
+}
+
+
+// ===================== Entity (Customer, Order, Payment) <-> model2::Entity =====================
+
+reaction CustomerInsertedIntoDomain {
+	after element modelPayment::Customer inserted in modelPayment::PaymentDomain[customers]
+	call createAndInsertEntity(affectedEObject, newValue, newValue.name)
+}
+
+reaction OrderInsertedIntoDomain {
+	after element modelPayment::Order inserted in modelPayment::PaymentDomain[orders]
+	call {
+		createAndInsertEntity(affectedEObject, newValue, newValue.name)
+		// the customer may already be set when the order is added
+		if (newValue.customer !== null) {
+			linkOrderToCustomer(newValue, newValue.customer)
+		}
+	}
+}
+
+// a Payment lives inside its Order, whose container is the PaymentDomain
+reaction PaymentInsertedIntoOrder {
+	after element modelPayment::Payment inserted in modelPayment::Order[payments]
+	call {
+		createAndInsertEntity(affectedEObject.eContainer, newValue, newValue.name)
+		refreshPaymentLink(newValue)
+	}
+}
+
+// name is inherited from modelPayment::Entity, so one reaction covers Customer, Order and Payment
+reaction EntityRenamed {
+	after attribute replaced at modelPayment::Entity[name]
+	call renameEntity(affectedEObject, newValue)
+}
+
+reaction EntityDeleted {
+	after element modelPayment::Entity deleted
+	call {
+		unlinkOrderFromCustomer(affectedEObject)
+		removePaymentLink(affectedEObject)
+		deleteEntity(affectedEObject)
+	}
+}
+
+
+// ===================== PaymentProvider -> Entity =====================
+
+reaction ProviderInsertedIntoDomain {
+	after element modelPayment::PaymentProvider inserted in modelPayment::PaymentDomain[providers]
+	call createAndInsertEntity(affectedEObject, newValue, newValue.name)
+}
+
+reaction ProviderRenamed {
+	after attribute replaced at modelPayment::PaymentProvider[name]
+	call renameEntity(affectedEObject, newValue)
+}
+
+reaction ProviderDeleted {
+	after element modelPayment::PaymentProvider deleted
+	call deleteEntity(affectedEObject)
+}
+
+
+// ===================== Order.customer -> Link =====================
+
+// Order.customer is a single-valued, non-containment reference:
+// drop the old Link and build a new one for the new customer.
+reaction OrderCustomerChanged {
+	after element modelPayment::Customer replaced at modelPayment::Order[customer]
+	call {
+		unlinkOrderFromCustomer(affectedEObject)
+		if (newValue !== null) {
+			linkOrderToCustomer(affectedEObject, newValue)
+		}
+	}
+}
+
+routine linkOrderToCustomer(modelPayment::Order order, modelPayment::Customer customer) {
+	match {
+		require absence of model2::Link corresponding to order tagged "customer"
+		val mRoot = retrieve model2::Root corresponding to order.eContainer
+		val orderEntity = retrieve model2::Entity corresponding to order
+		val customerEntity = retrieve model2::Entity corresponding to customer
+	}
+	create {
+		val mLink = new model2::Link
+	}
+	update {
+		mLink.entities.add(orderEntity)
+		mLink.entities.add(customerEntity)
+		mRoot.links.add(mLink)
+		addCorrespondenceBetween(order, mLink, "customer")
+	}
+}
+
+routine unlinkOrderFromCustomer(plain EObject as order) {
+	match {
+		val mLink = retrieve model2::Link corresponding to order tagged "customer"
+	}
+	update {
+		removeCorrespondenceBetween(order, mLink, "customer")
+		removeObject(mLink)
+	}
+}
+
+
+// ===================== Payment.provider / Payment.method -> Link [payment, provider] =====================
+
+reaction PaymentProviderChanged {
+	after element modelPayment::PaymentProvider replaced at modelPayment::Payment[provider]
+	call refreshPaymentLink(affectedEObject)
+}
+
+reaction PaymentMethodChanged {
+	after element modelPayment::PaymentMethod replaced at modelPayment::Payment[method]
+	call refreshPaymentLink(affectedEObject)
+}
+
+// Rebuilds the payment's Link from scratch, so it always reflects the current provider and method.
+// A Link is only created once the payment has a provider (a Link needs two entities).
+routine refreshPaymentLink(modelPayment::Payment payment) {
+	update {
+		removePaymentLink(payment)
+		if (payment.provider !== null) {
+			createPaymentLink(payment, payment.provider)
+		}
+	}
+}
+
+routine createPaymentLink(modelPayment::Payment payment, modelPayment::PaymentProvider provider) {
+	match {
+		require absence of model2::Link corresponding to payment tagged "provider"
+		val paymentEntity = retrieve model2::Entity corresponding to payment
+		val providerEntity = retrieve model2::Entity corresponding to provider
+	}
+	create {
+		val mLink = new model2::Link
+	}
+	update {
+		mLink.entities.add(paymentEntity)
+		mLink.entities.add(providerEntity)
+		if (payment.method !== null) {
+			val mStandard = Model2Factory.eINSTANCE.createCommunicationStandard
+			mStandard.name = payment.method.eClass.name
+			mLink.standard = mStandard
+		}
+		(paymentEntity.eContainer as Root).links.add(mLink)
+		addCorrespondenceBetween(payment, mLink, "provider")
+	}
+}
+
+routine removePaymentLink(plain EObject as payment) {
+	match {
+		val mLink = retrieve model2::Link corresponding to payment tagged "provider"
+	}
+	update {
+		removeCorrespondenceBetween(payment, mLink, "provider")
+		removeObject(mLink)
+	}
+}
+
+
+// ===================== Shared routines =====================
+
+// Used for Customer, Order, Payment and PaymentProvider, which all map to an Entity.
+// container is the element that corresponds to the model2 Root (the PaymentDomain).
+routine createAndInsertEntity(plain EObject as container, plain EObject as source, plain String as entityName) {
+	match {
+		require absence of model2::Entity corresponding to source
+		val mRoot = retrieve model2::Root corresponding to container
+	}
+	create {
+		val entity = new model2::Entity
+	}
+	update {
+		entity.name = entityName
+		mRoot.entities.add(entity)
+		addCorrespondenceBetween(source, entity)
+	}
+}
+
+routine renameEntity(plain EObject as source, plain String as newName) {
+	match {
+		val entity = retrieve model2::Entity corresponding to source
+	}
+	update {
+		entity.name = newName
+	}
+}
+
+// Removes the Entity and detaches it from every Link that still references it.
+routine deleteEntity(plain EObject as source) {
+	match {
+		val entity = retrieve model2::Entity corresponding to source
+	}
+	update {
+		val mRoot = entity.eContainer as Root
+		if (mRoot !== null) {
+			mRoot.links.forEach[entities.remove(entity)]
+		}
+		removeCorrespondenceBetween(entity, source)
+		removeObject(entity)
+	}
+}
