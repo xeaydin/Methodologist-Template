@@ -1,0 +1,30 @@
+-- VitruviusOCL Constraint File for the Methodologist Template
+--
+-- This file defines cross-model consistency constraints between model2 and modelPayment.
+-- Constraints are evaluated against the VSUM via VitruvOCL.evaluateConstraints(path).
+--
+-- Syntax notes: see constraints.ocl (dot navigation only, no arrow notation).
+
+-- Every Customer must have at least one PaymentMethod.
+context modelPayment::Customer inv CustomerHasPaymentMethod:
+    @severity MAJOR
+    @message "Customer {self.fullName} must have at least one PaymentMethod"
+    self.paymentMethods.size() >= 1
+
+-- Each Customer must have exactly one email address, and it must be unique among all Customers.
+context modelPayment::Customer inv CustomerEmailIsUnique:
+    @severity CRITICAL
+    @message "Customer {self.fullName} must have an email address that is not used by any other Customer"
+    self.email.size() > 0 and modelPayment::Customer.allInstances().select(c | c.email == self.email).size() == 1
+
+-- Every Invoice must have a unique invoice number.
+context modelPayment::Invoice inv InvoiceNumberIsUnique:
+    @severity CRITICAL
+    @message "Invoice {self.invoiceNumber} does not have a unique invoice number"
+    modelPayment::Invoice.allInstances().select(i | i.invoiceNumber == self.invoiceNumber).size() == 1
+
+-- The payerEmail of a PayPalAccount must match the email of the Customer owning it.
+context modelPayment::PayPalAccount inv PayPalEmailMatchesCustomerEmail:
+    @severity MAJOR
+    @message "PayPalAccount {self.payerEmail} does not match the email of its Customer"
+    modelPayment::Customer.allInstances().exists(c | c.paymentMethods.includes(self) and c.email == self.payerEmail)
